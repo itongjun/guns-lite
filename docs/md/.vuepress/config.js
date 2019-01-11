@@ -9,6 +9,7 @@ module.exports = {
         nav: [
             {text: '文档', link: '/'},
             {text: '项目主页', link: 'https://github.com/enilu/guns-lite'},
+            {text: '案例',link:'https://github.com/enilu/guns-lite/issues/4'}
         ],
         sidebar: [
             {
@@ -57,6 +58,17 @@ module.exports = {
                     '/feature/permissionMgr',
                     '/feature/monitor',
                     '/feature/sysConfig'
+                ]
+            },{
+                title: '进阶',
+                collapsable: false,
+                children: [
+                    '/action/i18n',
+                    '/action/sqlite',
+                    '/action/cache',
+                    '/action/task',
+                    '/action/jpaauditing.md'
+
                 ]
             }
         ]

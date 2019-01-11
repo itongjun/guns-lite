@@ -1,39 +1,16 @@
 # Guns-lite
-
+ 
 ## 前言
-
-年初公司计划要上一个产品，而且是要在两周内上线（由于之前已经开发、运营过一个类似的产品，所以这次要求先将核心功能上线；当然最后没有那么快上线，这是后话）。
-由于这个系统比较复杂，所以我们和以前一样计划将服务拆分，包括后台管理、微信端，api层，消息服务，调度任务等若干服务。领导既然发话了，无论计划看上去多么不靠谱，撸起袖子也得干。
-
-技术方案决定使用spring boot 后，大家分工开始各自各干各的。
-
-我很“荣幸”的分到后台管理等若干模块，开始干的时候我就想，两周时间写界面都不够。于是开始上网找轮子，有幸发现[guns](https://github.com/stylefeng/Guns)：一个基于spring boot的后台管理系统，而且具备代码生成功能。
-但是这个项目有个不方便的地方：数据库访问层使用的是mybatis。由于其他服务已经开始开发，而且都是使用spring data jpa。如果我要用guns，就没办法和别人共用dao层，层连带的
-service层也没办法共用了。想想以后要维护两套dao层和service层就吸了一口凉气——这是个金融系统，dao和service层仅仅靠自动生成的代码是远远不够的。
-
-
-所以等项目过了两周后，不出预料项目要延期了（具体原因不仅仅是内部原因，还有外部投资人、客户对产品需求的变更等，这不是重点，暂且不表）。于是趁着延期的那段时间，
-将后台管理的dao层适配为jpa，service也使用公共的service了。
-
-改造期间，惊心动魄。因为产品人员几度表明“明天测试”或者“下周上线试运行”，导致同时维护两个后台管理，老版本继续在guns的基础上开发功能赶进度，新版本使用jpa和新的service不停的追赶老版本。
-
-持续了将近两周的时间，终于新版本追上了，老版本果断丢弃。
-
-想到也许有同样需求的开发同学，或者不喜欢mybatis的同学，或者由于种种原因不方便使用mybatis，就将其贡献出来，也就是这个guns-lite.
-
-
-## 版本说明
 
  - guns-lite是在[guns](https://github.com/stylefeng/Guns)的基础上将数据库层由mybatis替换为spring data jpa的系统。
  - guns-lite是一个基于spring boot的后台管理系统。
 
-### 分支
-- admin-flat 该分支将页面更改为扁平化风格，去掉iframe+标签页的形式:
+## 分支
+- admin-flat 该分支将guns-admin页面更改为扁平化风格，去掉iframe+标签页的形式:
 
  ![flat](https://user-images.githubusercontent.com/3115814/38806871-49f57248-41ad-11e8-932b-e06dc1941107.jpg)
 
 - oracle, 该分支将底层数据使用oracle。
-
 
 ## 目录说明
 - guns-admin 一个成熟的后台管理系统，完全具备了后台管理系统的基本功能
@@ -44,6 +21,13 @@ service层也没办法共用了。想想以后要维护两套dao层和service层
 - guns-entity 实体层
 - guns-service 服务层
 
+
+
+## 演示地址
+- 后台管理系统 [http://45.32.65.17:8081/guns-admin/](http://45.32.65.17:8081/guns-admin/)
+- vue版本后台管理 [http://45.32.65.17:8081/vue](http://45.32.65.17:8081/vue)
+- 因资金原因演示服务器放在国外并且和其他三个服务共用一个2G内存的linux服务器，访问速度极慢，请耐心等待(/ □ \)) 囧
+
 ## 技术选型
 
 - 核心框架：spring boot
@@ -52,6 +36,26 @@ service层也没办法共用了。想想以后要维护两套dao层和service层
 - 数据库连接池：Druid
 - 缓存：Ehcache
 - 前端：Beetl模版+Bootstrap
+
+## 包含的功能
+guns-lite包含了成熟的后台管理功能guns-admin，以及前后端分离的的后端管理系统(guns-admin-vuejs和guns-api)
+上面两者包含的功能一致：
+- 部门管理
+- 用户管理
+- 角色管理
+- 菜单管理：配置菜单功能
+- 权限分配：为指定的角色配置特定的功能菜单
+- 参数管理：维护系统参数，并缓存系统参数提供高效的读取
+- 数据字典管理：配置维护数据字典
+- 定时任务管理：编写、配置、执行定时任务
+- 业务日志：通过注解的方式记录用户操作日志，并提供日志查询功能
+- 登录日志：查看用户登录登出日志
+
+**后续考虑添加的功能**
+- 国际化
+- 消息管理：配置并发送消息的功能，短信类型可以包括：短信，邮件，微信模版消息，钉钉提醒等。
+
+
 
 ## 使用
 
@@ -70,9 +74,11 @@ service层也没办法共用了。想想以后要维护两套dao层和service层
 ## 感谢
 
 - [stylefeng](https://github.com/stylefeng) 没有他就没有guns，没有guns就没有这个guns-lite
-- [PanJiaChen](https://github.com/PanJiaChen) guns-admin-vuejs克隆在他的[vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+- [PanJiaChen](https://github.com/PanJiaChen) guns-admin-vuejs克隆自他的[vue-admin-template](https://github
+.com/PanJiaChen/vue-admin-template)
 
 ## 交流
-- 欢迎提issue [https://github.com/enilu/guns-lite/issues/new](https://github.com/enilu/guns-lite/issues/new)
-- 欢迎加入qq交流群：740230743
+- Bugs: [Issues](https://github.com/enilu/guns-lite/issues/new)
+- QQ: 欢迎加入qq交流群 740230743
+- Gitter: [Gitter channel](https://gitter.im/guns-lite/community)
 

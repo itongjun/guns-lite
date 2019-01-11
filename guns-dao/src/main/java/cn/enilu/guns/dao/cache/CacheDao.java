@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * CacheDao
  *
- * @author zt
+ * @author enilu
  * @version 2018/9/12 0012
  */
 public interface CacheDao {
@@ -59,6 +59,6 @@ public interface CacheDao {
       String get(Serializable key);
 
 
-        void del(Serializable key);
-        void hdel(Serializable key, Serializable k);
+      void del(Serializable key);
+      void hdel(Serializable key, Serializable k);
 }

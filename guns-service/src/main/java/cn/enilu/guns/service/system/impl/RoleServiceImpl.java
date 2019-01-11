@@ -1,5 +1,6 @@
 package cn.enilu.guns.service.system.impl;
 
+import cn.enilu.guns.bean.vo.node.Node;
 import cn.enilu.guns.bean.vo.node.ZTreeNode;
 import cn.enilu.guns.bean.entity.system.Relation;
 import cn.enilu.guns.dao.system.RelationRepository;
@@ -40,7 +41,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<ZTreeNode> roleTreeListByRoleId(Integer[] ids) {
+    public List<ZTreeNode> roleTreeListByRoleId(Long[] ids) {
         List list = roleRepository.roleTreeListByRoleId(ids);
         List<ZTreeNode> treeNodes = new ArrayList<>();
         for(int i=0;i<list.size();i++){
@@ -57,7 +58,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void setAuthority(Integer roleId, String ids) {
+    public void setAuthority(Long roleId, String ids) {
         // 删除该角色所有的权限
         relationRepository.deleteByRoleId(roleId);
 
@@ -72,11 +73,25 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void delRoleById(Integer roleId) {
+    public void delRoleById(Long roleId) {
         //删除角色
         roleRepository.delete(roleId);
 
         // 删除该角色所有的权限
         relationRepository.deleteByRoleId(roleId);
+    }
+
+    @Override
+    public List<Node> generateRoleTree(List<ZTreeNode> list) {
+        List<Node> nodes = new ArrayList<>();
+        for(ZTreeNode role:list){
+            Node roleNode = new Node();
+            roleNode.setId(role.getId());
+            roleNode.setName(role.getName());
+            roleNode.setPid(role.getpId());
+            roleNode.setChecked(role.getChecked());
+            nodes.add(roleNode);
+        }
+        return nodes;
     }
 }

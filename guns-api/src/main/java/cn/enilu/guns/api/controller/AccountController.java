@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * AccountController
  *
- * @author zt
+ * @author enilu
  * @version 2018/9/12 0012
  */
 @RestController
@@ -94,9 +94,14 @@ public class AccountController extends BaseController{
 
     @RequestMapping(value = "/info",method = RequestMethod.GET)
     public Object info(HttpServletRequest request){
-        Long idUser = getIdUser(request);
+        Long idUser = null;
+        try {
+             idUser = getIdUser(request);
+        }catch (Exception e){
+            return Rets.expire();
+        }
         if(idUser!=null){
-            User user =  userRepository.findOne(idUser.intValue());
+            User user =  userRepository.findOne(idUser);
             if(StringUtils.isEmpty(user.getRoleid())){
                 return Rets.failure("该用户未配置权限");
             }

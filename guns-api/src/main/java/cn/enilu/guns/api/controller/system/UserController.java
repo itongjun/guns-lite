@@ -2,6 +2,7 @@ package cn.enilu.guns.api.controller.system;
 
 import cn.enilu.guns.api.controller.BaseController;
 import cn.enilu.guns.bean.annotion.core.BussinessLog;
+import cn.enilu.guns.bean.constant.Const;
 import cn.enilu.guns.bean.constant.factory.PageFactory;
 import cn.enilu.guns.bean.constant.state.ManagerStatus;
 import cn.enilu.guns.bean.dictmap.UserDict;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * UserController
  *
- * @author zt
+ * @author enilu
  * @version 2018/9/15 0015
  */
 @RestController
@@ -91,7 +91,6 @@ public class UserController extends BaseController {
             user.setSalt(ToolUtil.getRandomString(5));
             user.setPassword(MD5.md5(user.getPassword(), user.getSalt()));
             user.setStatus(ManagerStatus.OK.getCode());
-            user.setCreatetime(new Date());
             userRepository.save(UserFactory.createUser(user, new User()));
         }else{
             User oldUser = userRepository.findOne(user.getId());
@@ -102,7 +101,7 @@ public class UserController extends BaseController {
 
     @BussinessLog(value = "删除管理员", key = "userId", dict = UserDict.class)
     @RequestMapping(method = RequestMethod.DELETE)
-    public Object remove(Integer userId){
+    public Object remove(Long userId){
         logger.info("id:{}",userId);
         if (ToolUtil.isEmpty(userId)) {
             throw new GunsException(BizExceptionEnum.REQUEST_NULL);
@@ -112,4 +111,20 @@ public class UserController extends BaseController {
         userRepository.save(user);
         return Rets.success();
     }
+    @BussinessLog(value="设置用户角色",key="userId",dict=UserDict.class)
+    @RequestMapping(value="/setRole",method = RequestMethod.GET)
+    public Object setRole(@RequestParam("userId") Long userId, @RequestParam("roleIds") String roleIds) {
+        if (ToolUtil.isOneEmpty(userId, roleIds)) {
+            throw new GunsException(BizExceptionEnum.REQUEST_NULL);
+        }
+        //不能修改超级管理员
+        if (userId.equals(Const.ADMIN_ID)) {
+            throw new GunsException(BizExceptionEnum.CANT_CHANGE_ADMIN);
+        }
+        User user = userRepository.findOne(userId);
+        user.setRoleid(roleIds);
+        userRepository.save(user);
+        return Rets.success();
+    }
+
 }

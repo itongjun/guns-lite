@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  * AccountServiceImpl
  *
- * @author zt
+ * @author enilu
  * @version 2018/9/12 0012
  */
 @Service
@@ -33,8 +33,8 @@ public class AccountServiceImpl implements AccountService {
         String token = UUID.randomUUID().toString();
         tokenCache.put(token, idUser);
         LogManager.me().executeLog(LogTaskFactory.loginLog(idUser, HttpKit.getIp()));
-        User user = userRepository.findOne(idUser.intValue());
-        Integer[] roleArray = Convert.toIntArray(user.getRoleid());
+        User user = userRepository.findOne(idUser);
+        Long[] roleArray = Convert.toLongArray(true,user.getRoleid());
         ShiroUser shiroUser = new ShiroUser();
         shiroUser.setAccount(user.getAccount());
         shiroUser.setDeptId(user.getDeptid());
@@ -44,7 +44,7 @@ public class AccountServiceImpl implements AccountService {
         shiroUser.setRoleList(Lists.newArrayList(roleArray));
         List<String> roleNames = Lists.newArrayList();
         List<String> roleCodes = Lists.newArrayList();
-        for (int roleId : roleArray) {
+        for (Long roleId : roleArray) {
             roleCodes.add(ConstantFactory.me().getSingleRoleTip(roleId));
             roleNames.add(ConstantFactory.me().getSingleRoleName(roleId));
 

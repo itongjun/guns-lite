@@ -17,7 +17,6 @@ import cn.enilu.guns.service.system.MenuService;
 import cn.enilu.guns.service.system.impl.ConstantFactory;
 import cn.enilu.guns.utils.Maps;
 import cn.enilu.guns.utils.ToolUtil;
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ import java.util.List;
 /**
  * MenuController
  *
- * @author zt
+ * @author enilu
  * @version 2018/9/12 0012
  */
 @RestController
@@ -54,8 +53,6 @@ public class MenuController extends BaseController {
     @RequestMapping(method = RequestMethod.POST)
     @BussinessLog(value = "编辑菜单", key = "name", dict = MenuDict.class)
     public Object save(@ModelAttribute Menu menu) {
-        logger.info(JSON.toJSONString(menu));
-
         //判断是否存在该编号
         if(menu.getId()==null) {
             String existedMenuName = ConstantFactory.me().getMenuNameByCode(menu.getCode());
@@ -67,8 +64,7 @@ public class MenuController extends BaseController {
 
         //设置父级菜单编号
         menuService.menuSetPcode(menu);
-
-        this.menuRepository.save(menu);
+        menuRepository.save(menu);
         return Rets.success();
     }
 
@@ -87,7 +83,7 @@ public class MenuController extends BaseController {
     }
 
     /**
-     * 获取角色列表
+     * 获取菜单树
      */
     @RequestMapping(value = "/menuTreeListByRoleId", method = RequestMethod.GET)
     public Object menuTreeListByRoleId(Integer roleId) {

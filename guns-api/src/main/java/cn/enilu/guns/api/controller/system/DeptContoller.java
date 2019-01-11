@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * DeptContoller
  *
- * @author zt
+ * @author enilu
  * @version 2018/9/15 0015
  */
 @RestController
@@ -56,7 +56,7 @@ public class DeptContoller extends BaseController {
     }
     @RequestMapping(method = RequestMethod.DELETE)
     @BussinessLog(value = "删除部门", key = "id", dict = DeptDict.class)
-    public Object remove(Integer id){
+    public Object remove(Long id){
         logger.info("id:{}",id);
         if (ToolUtil.isEmpty(id)) {
             throw new GunsException(BizExceptionEnum.REQUEST_NULL);
