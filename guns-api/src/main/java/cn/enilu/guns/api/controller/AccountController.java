@@ -5,13 +5,17 @@ import cn.enilu.guns.bean.entity.system.User;
 import cn.enilu.guns.bean.vo.front.Rets;
 import cn.enilu.guns.bean.vo.node.MenuNode;
 import cn.enilu.guns.dao.cache.TokenCache;
+import cn.enilu.guns.dao.system.MenuRepository;
 import cn.enilu.guns.dao.system.UserRepository;
 import cn.enilu.guns.service.system.AccountService;
 import cn.enilu.guns.service.system.MenuService;
+import cn.enilu.guns.service.system.UserService;
 import cn.enilu.guns.utils.MD5;
 import cn.enilu.guns.utils.Maps;
 import cn.enilu.guns.utils.StringUtils;
+import cn.enilu.guns.utils.ToolUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * AccountController
@@ -38,11 +43,15 @@ public class AccountController extends BaseController{
     @Autowired
     UserRepository userRepository;
     @Autowired
+    private UserService userService;
+    @Autowired
     private AccountService accountService;
     @Autowired
     private MenuService menuService;
     @Autowired
     private TokenCache tokenCache;
+    @Autowired
+    private MenuRepository menuRepository;
     /**
      * 用户登录<br>
      * 1，验证没有注册<br>
@@ -101,20 +110,38 @@ public class AccountController extends BaseController{
             return Rets.expire();
         }
         if(idUser!=null){
-            User user =  userRepository.findOne(idUser);
+            User user =  userService.get(idUser);
             if(StringUtils.isEmpty(user.getRoleid())){
                 return Rets.failure("该用户未配置权限");
             }
             String token = getToken(request);
             ShiroUser shiroUser = tokenCache.getUser(token);
             Map map = Maps.newHashMap("name",user.getName(),"role","admin","roles", shiroUser.getRoleCodes());
-
             List<MenuNode> menuNodes =  menuService.getMenusTreeByRoleIds(shiroUser.getRoleList());
-            map.put("menuNodes",generateRouters(menuNodes));
+            //返回所有可操作的功能列表，用作进行按钮级别权限控制
+            map.put("permissions",generatePermissions(shiroUser.getRoleList()));
+            //返回（根据拥有操作权限的菜单列表构造）路由信息
+            map.put("routers",generateRouters(menuNodes));
             return Rets.success(map);
         }
         return Rets.failure("获取用户信息失败");
     }
+
+    private List<String> generatePermissions(List<Long> roleList) {
+        Set<String> permissionSet = Sets.newHashSet();
+        for (Long roleId : roleList) {
+            List<String> permissions =     menuRepository.getResUrlsByRoleId(roleId.intValue());
+            if (permissions != null) {
+                for (String permission : permissions) {
+                    if (ToolUtil.isNotEmpty(permission)) {
+                        permissionSet.add(permission);
+                    }
+                }
+            }
+        }
+        return Lists.newArrayList(permissionSet.iterator());
+    }
+
     private List<Map> generateRouters(List<MenuNode> list){
         List<Map> result = Lists.newArrayList();
         for(MenuNode menuNode:list){
@@ -123,6 +150,7 @@ public class AccountController extends BaseController{
             map.put("component","Layout");
             map.put("redirect","#");
             map.put("name",menuNode.getName());
+            map.put("alwaysShow",true);
             List<Map> children = Lists.newArrayList();
             if(!menuNode.getChildren().isEmpty()){
                 for(MenuNode child:menuNode.getChildren()) {
@@ -132,15 +160,12 @@ public class AccountController extends BaseController{
                     Map map1 = com.google.common.collect.Maps.newHashMap();
                     map1.put("path", child.getUrl());
                     map1.put("name", child.getName());
-                    map1.put("component", "() => import('@/views/" + menuNode.getCode() + "/"+child.getCode()+"/index')");
                     map1.put("meta", Maps.newHashMap("title",child.getName()));
                     children.add(map1);
-
                 }
                 map.put("children",children);
             }
             result.add(map);
-
         }
         return result;
     }

@@ -20,7 +20,6 @@ import cn.enilu.guns.utils.ToolUtil;
 import cn.enilu.guns.utils.factory.Page;
 import cn.enilu.guns.warpper.UserWarpper;
 import com.alibaba.fastjson.JSON;
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,25 +50,11 @@ public class UserController extends BaseController {
     private UserService userService;
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     public Object list(@RequestParam(required = false) String account,
-                       @RequestParam(required = false) String name,
-                       @RequestParam(required = false) String beginTime,
-                       @RequestParam(required = false) String endTime,
-                       @RequestParam(required = false) Integer deptid){
+                       @RequestParam(required = false) String name){
         Map<String,Object> params = new HashMap<>();
         params.put("name",name);
-        params.put("beginTime",beginTime);
-        params.put("endTime",endTime);
-        User user = new User();
-        if(!Strings.isNullOrEmpty(name)){
-            user.setName(name);
-            user.setAccount(name);
-        }
-        if(deptid!=null&&deptid!=0){
-            params.put("deptid",deptid);
-        }
-
+        params.put("account",account);
         Page page = new PageFactory().defaultPage();
-
         page = userService.findPage(page, params);
         List list = (List) new UserWarpper(BeanUtil.objectsToMaps(page.getRecords())).warp();
         page.setRecords(list);
@@ -93,7 +78,7 @@ public class UserController extends BaseController {
             user.setStatus(ManagerStatus.OK.getCode());
             userRepository.save(UserFactory.createUser(user, new User()));
         }else{
-            User oldUser = userRepository.findOne(user.getId());
+            User oldUser = userService.get(user.getId());
             userRepository.save(UserFactory.updateUser(user,oldUser));
         }
         return Rets.success();
@@ -106,7 +91,7 @@ public class UserController extends BaseController {
         if (ToolUtil.isEmpty(userId)) {
             throw new GunsException(BizExceptionEnum.REQUEST_NULL);
         }
-        User user = userRepository.findOne(userId);
+        User user = userService.get(userId);
         user.setStatus(ManagerStatus.DELETED.getCode());
         userRepository.save(user);
         return Rets.success();
@@ -121,7 +106,7 @@ public class UserController extends BaseController {
         if (userId.equals(Const.ADMIN_ID)) {
             throw new GunsException(BizExceptionEnum.CANT_CHANGE_ADMIN);
         }
-        User user = userRepository.findOne(userId);
+        User user = userService.get(userId);
         user.setRoleid(roleIds);
         userRepository.save(user);
         return Rets.success();
